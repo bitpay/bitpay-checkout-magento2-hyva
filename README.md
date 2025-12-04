@@ -1,0 +1,1 @@
+# Hyvä Compatibility Module for BitPay Checkout
