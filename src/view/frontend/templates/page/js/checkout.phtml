@@ -1,0 +1,71 @@
+<?php
+
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
+/** @var HyvaCsp $hyvaCsp */
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+?>
+<script>
+    (() => {
+
+        let customerData = null;
+        let components = [];
+
+        document.addEventListener('alpine:init', () => {
+            fetch('<?= $escaper->escapeUrl($block->getUrl('bitpay-invoice/customer/data')); ?>', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data || !data.billingAddress) {
+                        return;
+                    }
+
+                    customerData = data;
+
+                    fillAddressForm();
+                });
+        });
+
+        document.addEventListener('magewire:available', () => {
+            Magewire.hook('component.initialized', component => {
+                if (component.id === 'checkout.shipping-details.address-form' || component.id === 'checkout.guest-details') {
+                    components.push(component)
+                    fillAddressForm();
+                }
+            });
+        });
+
+        function fillAddressForm() {
+            if (!customerData) {
+                return;
+            }
+
+            for (const component of components) {
+                if (component.id === 'checkout.shipping-details.address-form') {
+                    component.sync('address.firstname', customerData.billingAddress.firstname ?? "");
+                    component.sync('address.lastname', customerData.billingAddress.lastname ?? "");
+                    component.sync('address.street.0', customerData.billingAddress.street ?? "");
+                    component.sync('address.city', customerData.billingAddress.city ?? "");
+                    component.sync('address.postcode', customerData.billingAddress.postcode ?? "");
+                    component.sync('address.telephone', customerData.billingAddress.telephone ?? "");
+                    component.sync('address.region_id', customerData.billingAddress.region_id ?? "");
+                } else if (component.id === 'checkout.guest-details') {
+                    component.sync('data.email_address', customerData.email ?? "");
+                }
+            }
+        }
+    })()
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>
+

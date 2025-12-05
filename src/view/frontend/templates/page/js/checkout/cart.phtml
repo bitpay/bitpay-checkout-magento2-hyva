@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Magento\Framework\View\Element\Template;
+
+/** @var HyvaCsp $hyvaCsp */
+/** @var Template $block */
+
+?>
+<script>
+    (() => {
+        document.addEventListener('alpine:init', () => {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const reload = urlParams.get('reload');
+
+            if (reload) {
+                const storage = window.localStorage;
+
+                // Invalidate cart section
+                if (storage) {
+                    const privateContent = JSON.parse(storage.getItem('mage-cache-storage') || '{}');
+                    if (privateContent.cart) {
+                        delete privateContent.cart;
+                        storage.setItem('mage-cache-storage', JSON.stringify(privateContent));
+                    }
+                }
+
+                // Trigger cart data reload
+                window.dispatchEvent(new CustomEvent('reload-customer-section-data'));
+
+                // Update URL without reload parameter
+                const url = window.location.origin + window.location.pathname;
+                window.history.pushState(null, null, url);
+            }
+        });
+    })()
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>
+
