@@ -1,0 +1,27 @@
+<?php
+declare(strict_types=1);
+
+/** @var \Bitpay\BPCheckout\Block\Index $block */
+/** @var \Magento\Framework\Escaper $escaper */
+
+$orderId = $block->getOrderId();
+?>
+<div id="success-bitpay-page">
+    <div class="checkout-success py-4">
+        <?php if ($orderId): ?>
+            <p><?= $escaper->escapeHtml(__('Your order # is: <span>%1</span>.', $orderId), ['span']) ?></p>
+            <p>
+                <?= $escaper->escapeHtml(
+                    __('We\'ll email you an order confirmation with details and tracking info.')
+                ) ?>
+            </p>
+        <?php endif; ?>
+
+        <div class="my-4">
+            <a class="btn btn-primary inline-flex" href="<?= $escaper->escapeUrl($block->getBaseSecureUrl()) ?>">
+                <span><?= $escaper->escapeHtml(__('Continue Shopping')) ?></span>
+            </a>
+        </div>
+    </div>
+</div>
+<!--end page to show with redirect-->

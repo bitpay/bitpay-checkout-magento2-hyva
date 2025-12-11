@@ -1,0 +1,54 @@
+<?php
+
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
+/** @var HyvaCsp $hyvaCsp */
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+?>
+<script>
+    (() => {
+        document.addEventListener('alpine:init', () => {
+            // autofill guest form
+            setTimeout(() => {
+                fetch('<?= $escaper->escapeUrl($block->getUrl('bitpay-invoice/customer/data')); ?>', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data) {
+                            return;
+                        }
+
+                        const orderIdField = document.getElementById('oar-order-id');
+                        const lastnameField = document.getElementById('oar-billing-lastname');
+                        const emailField = document.getElementById('oar_email');
+
+                        if (orderIdField && data.incrementId) {
+                            orderIdField.value = data.incrementId;
+                        }
+                        if (lastnameField && data.billingAddress?.lastname) {
+                            lastnameField.value = data.billingAddress.lastname;
+                        }
+                        if (emailField && data.email) {
+                            emailField.value = data.email;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching customer data:', error);
+                    });
+            }, 1000);
+        });
+    })()
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>
+

@@ -1,0 +1,27 @@
+{
+    "name": "bitpay/module-bpcheckout-hyva-compatibility",
+    "description": "Hyvä Themes Compatibility Module for BitPay Checkout",
+    "type": "magento2-module",
+    "license": "mit",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "email": "integrations@bitpay.com",
+            "name": "BitPay"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "magento/framework": "*",
+        "hyva-themes/magento2-compat-module-fallback": "*",
+        "bitpay/module-bpcheckout": "~10.2.0"
+    },
+    "autoload": {
+        "files": [
+            "src/registration.php"
+        ],
+        "psr-4": {
+            "Bitpay\\BPCheckoutHyvaCompatibility\\": "src"
+        }
+    }
+}
